@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Running Overlay Generator - Interactive Premium v6.2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;600;700;900&family=Montserrat:wght@300;400;700;900&family=Oswald:wght@400;500;700&family=Playfair+Display:ital,wght=0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #141b2d;
+            --accent-color: #fc4c02;
+            --text-main: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header { text-align: center; margin-bottom: 2rem; }
+        h1 {
+            font-size: 2.1rem; font-weight: 900; letter-spacing: -0.03em; text-transform: uppercase;
+            background: linear-gradient(135deg, #ff6b00 0%, #fc4c02 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        p.subtitle { color: #64748b; margin-top: 0.5rem; font-size: 0.9rem; }
+
+        .container {
+            display: grid; grid-template-columns: 430px 1fr; gap: 2rem;
+            max-width: 1200px; width: 100%;
+        }
+
+        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } }
+
+        .panel-control {
+            background: var(--card-bg); padding: 1.75rem; border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 1.2rem;
+        }
+
+        .ratio-selector {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+            background: rgba(9, 13, 25, 0.8); padding: 0.4rem; border-radius: 10px;
+        }
+        .ratio-btn {
+            background: transparent; border: none; color: #94a3b8; padding: 0.6rem;
+            border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem;
+            transition: all 0.2s; text-align: center;
+        }
+        .ratio-btn.active {
+            background: #1e293b; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .calculator-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+            background: rgba(9, 13, 25, 0.6); padding: 0.85rem; border-radius: 10px;
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .input-header { display: flex; justify-content: space-between; align-items: center; }
+        
+        .checkbox-container {
+            display: flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; color: #94a3b8; cursor: pointer;
+        }
+        .checkbox-container input { width: auto; margin: 0; cursor: pointer; }
+
+        label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+        input[type="text"], input[type="number"] {
+            background: #0b0f19; border: 1.5px solid #1e293b; padding: 0.7rem;
+            border-radius: 6px; color: white; font-size: 0.9rem; font-weight: 700; width: 100%;
+        }
+        input:focus { outline: none; border-color: var(--accent-color); }
+
+        .template-selector {
+            display: grid; grid-template-columns: 1fr; gap: 0.4rem;
+            max-height: 250px; overflow-y: auto; padding-right: 0.3rem;
+        }
+        .template-selector::-webkit-scrollbar { width: 4px; }
+        .template-selector::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
+        .tmpl-btn {
+            background: #1e293b; border: 1px solid rgba(255,255,255,0.02); color: #94a3b8;
+            padding: 0.75rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
+            text-align: left; transition: all 0.2s;
+        }
+        .tmpl-btn:hover { background: #27374d; color: white; }
+        .tmpl-btn.active {
+            background: linear-gradient(135deg, #ff6b00 0%, #fc4c02 100%);
+            color: white; font-weight: 700; box-shadow: 0 4px 12px rgba(252, 76, 2, 0.3);
+        }
+
+        .panel-preview {
+            display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+        }
+
+        .preview-wrapper {
+            width: 100%; max-width: 360px; transition: aspect-ratio 0.3s ease;
+            background-color: #131a2e;
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23131a2e"/><path d="M0 90 Q 25 40, 50 75 T 100 50 L 100 100 L 0 100 Z" fill="%231e2942" opacity="0.3"/></svg>');
+            background-size: cover; border-radius: 16px; overflow: hidden;
+            border: 4px solid #1e293b; box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            position: relative;
+        }
+        
+        .ratio-4-5 { aspect-ratio: 4/5; }
+        .ratio-9-16 { aspect-ratio: 9/16; }
+
+        #overlay-canvas {
+            width: 100%; height: 100%; position: relative; box-sizing: border-box;
+            padding: 20px; color: white; overflow: hidden;
+        }
+
+        .draggable-wrapper {
+            position: absolute; left: 20px; bottom: 20px; right: 20px;
+            cursor: move; user-select: none; touch-action: none;
+            padding: 8px; border: 1px dashed transparent; transition: border 0.2s;
+            min-width: 280px; display: inline-block; box-sizing: border-box;
+        }
+        .draggable-wrapper:hover {
+            border: 1px dashed rgba(252, 76, 2, 0.5); background: rgba(252, 76, 2, 0.05);
+        }
+
+        .action-buttons { display: flex; gap: 1rem; width: 100%; max-width: 360px; }
+        .btn {
+            flex: 1; padding: 0.85rem; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;
+            text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; transition: all 0.2s;
+        }
+        .btn-copy { background: #334155; color: white; }
+        .btn-download { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: white; }
+        .btn:hover { transform: translateY(-2px); }
+
+        /* Font Helpers */
+        .f-sporty { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+        .f-minimal { font-family: 'Inter', sans-serif; font-weight: 700; }
+        .f-luxury { font-family: 'Playfair Display', serif; }
+        .f-montserrat { font-family: 'Montserrat', sans-serif; }
+        .f-mono { font-family: 'Share Tech Mono', monospace; }
+        .f-anton { font-family: 'Anton', sans-serif; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Running Overlay Generator</h1>
+        <p class="subtitle">Edisi Premium Perbaikan v6.2: Perbaikan Bug & Kalkulator Real-time Otomatis</p>
+    </header>
+
+    <div class="container">
+        <!-- CONTROL PANEL -->
+        <div class="panel-control">
+            <div class="input-group">
+                <label>Pilih Rasio Kanvas</label>
+                <div class="ratio-selector">
+                    <button class="ratio-btn" id="btn-4-5" onclick="setRatio('4-5')">4:5 (Post Feeds)</button>
+                    <button class="ratio-btn active" id="btn-9-16" onclick="setRatio('9-16')">9:16 (Story / Reels)</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="input-header">
+                    <label>Judul Sesi Lari</label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="check-title" checked onchange="updateTemplate()"> Tampilkan
+                    </label>
+                </div>
+                <input type="text" id="input-title" value="Morning Threshold Run 🔥">
+            </div>
+
+            <div class="input-group">
+                <div class="input-header">
+                    <label>Lokasi / Rute</label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="check-route" checked onchange="updateTemplate()"> Tampilkan
+                    </label>
+                </div>
+                <input type="text" id="input-route" value="Samarinda Kota Loop">
+            </div>
+
+            <div class="calculator-grid">
+                <div class="input-group">
+                    <label>Jarak (KM)</label>
+                    <input type="number" id="input-distance" step="0.01" value="10.00" style="text-align:center;">
+                </div>
+                <div class="input-group">
+                    <label>Pace (/KM)</label>
+                    <input type="text" id="input-pace" value="05:12" style="text-align:center;" placeholder="MM:SS">
+                </div>
+                <div class="input-group">
+                    <label>Waktu</label>
+                    <input type="text" id="input-time" value="00:52:00" style="text-align:center;" placeholder="HH:MM:SS">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Pilih Gaya Overlay (31 Pilihan Desain Unik)</label>
+                <div class="template-selector" id="selector-container"></div>
+            </div>
+        </div>
+
+        <!-- LIVE PREVIEW PANEL -->
+        <div class="panel-preview">
+            <div class="preview-wrapper ratio-9-16" id="preview-box">
+                <div id="overlay-canvas">
+                    <div id="drag-element" class="draggable-wrapper"></div>
+                </div>
+            </div>
+            <p style="font-size:0.75rem; color:#64748b; text-align:center;">💡 Klik & Geser teks di atas untuk memindahkan posisi penempatan foto.</p>
+            <div class="action-buttons">
+                <button class="btn btn-copy" onclick="copyOverlay()">Copy Gambar</button>
+                <button class="btn btn-download" onclick="downloadOverlay()">Unduh PNG</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputTitle = document.getElementById('input-title');
+        const inputRoute = document.getElementById('input-route');
+        const checkTitle = document.getElementById('check-title');
+        const checkRoute = document.getElementById('check-route');
+        const distanceInput = document.getElementById('input-distance');
+        const paceInput = document.getElementById('input-pace');
+        const timeInput = document.getElementById('input-time');
+        
+        const canvas = document.getElementById('overlay-canvas');
+        const dragElement = document.getElementById('drag-element');
+        const selectorContainer = document.getElementById('selector-container');
+        const previewBox = document.getElementById('preview-box');
+
+        let currentTemplate = 1;
+        let currentRatio = '9-16';
+
+        // --- ENGINE AUTOMATIC RUNNING CALCULATOR ---
+        function timeToSeconds(timeStr) {
+            const parts = timeStr.split(':').map(Number);
+            if (parts.length === 3) {
+                return (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+            } else if (parts.length === 2) {
+                return (parts[0] * 60) + parts[1];
+            }
+            return 0;
+        }
+
+        function secondsToTimeStr(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return [h, m, s].map(v => v < 10 ? '0' + v : v).join(':');
+        }
+
+        function secondsToPaceStr(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return [m, s].map(v => v < 10 ? '0' + v : v).join(':');
+        }
+
+        // Listener Input untuk Kalkulasi Otomatis
+        distanceInput.addEventListener('input', () => {
+            calculatePaceFromTime();
+            updateTemplate();
+        });
+
+        timeInput.addEventListener('input', () => {
+            calculatePaceFromTime();
+            updateTemplate();
+        });
+
+        paceInput.addEventListener('input', () => {
+            calculateTimeFromPace();
+            updateTemplate();
+        });
+
+        function calculatePaceFromTime() {
+            const dist = parseFloat(distanceInput.value);
+            const totalSecs = timeToSeconds(timeInput.value);
+            if (dist > 0 && totalSecs > 0) {
+                const paceSecs = totalSecs / dist;
+                paceInput.value = secondsToPaceStr(paceSecs);
+            }
+        }
+
+        function calculateTimeFromPace() {
+            const dist = parseFloat(distanceInput.value);
+            const paceSecs = timeToSeconds(paceInput.value);
+            if (dist > 0 && paceSecs > 0) {
+                const totalSecs = paceSecs * dist;
+                timeInput.value = secondsToTimeStr(totalSecs);
+            }
+        }
+
+        [inputTitle, inputRoute, checkTitle, checkRoute].forEach(item => {
+            item.addEventListener('input', updateTemplate);
+            item.addEventListener('change', updateTemplate);
+        });
+
+        function setRatio(ratio) {
+            currentRatio = ratio;
+            document.getElementById('btn-4-5').classList.remove('active');
+            document.getElementById('btn-9-16').classList.remove('active');
+            
+            if(ratio === '4-5') {
+                document.getElementById('btn-4-5').classList.add('active');
+                previewBox.className = "preview-wrapper ratio-4-5";
+            } else {
+                document.getElementById('btn-9-16').classList.add('active');
+                previewBox.className = "preview-wrapper ratio-9-16";
+            }
+            dragElement.style.top = "auto";
+            dragElement.style.bottom = "20px";
+            dragElement.style.left = "20px";
+            dragElement.style.right = "20px";
+            updateTemplate();
+        }
+
+        function getHeaderHTML(title, route) {
+            let html = '';
+            if (checkTitle.checked) html += `<div style="font-size:15px; font-weight:700; color:#fff;">${title}</div>`;
+            if (checkRoute.checked) html += `<div style="font-size:10px; color:rgba(255,255,255,0.6); margin-top:2px;">📍 ${route}</div>`;
+            return html;
+        }
+
+        // --- DAFTAR LENGKAP 31 TEMPLATE PREMIUM ---
+        const templateLibrary = [
+            { id: 1, name: "Zurich Pure Minimalist", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="display:flex; flex-direction:column; gap:20px; width:100%; box-sizing:border-box;">
+                    <div>${getHeaderHTML(title, route)}</div>
+                    <div style="display:flex; justify-content:between; width:100%; border-top:1px solid rgba(255,255,255,0.15); padding-top:10px; gap: 24px;">
+                        <div style="flex:1;"><div style="font-size:22px; font-family:monospace; font-weight:900; color:#fff;">${d}</div><div style="font-size:7px; opacity:0.5; letter-spacing:1px;">DIST (KM)</div></div>
+                        <div style="flex:1;"><div style="font-size:22px; font-family:monospace; font-weight:900; color:#fff;">${p}</div><div style="font-size:7px; opacity:0.5; letter-spacing:1px;">PACE</div></div>
+                        <div style="flex:1;"><div style="font-size:22px; font-family:monospace; font-weight:900; color:#fff;">${t}</div><div style="font-size:7px; opacity:0.5; letter-spacing:1px;">TIME</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 2, name: "Tokyo Midnight Cyber", render: (title, route, d, p, t) => `
+                <div class="f-sporty" style="display:flex; flex-direction:column; gap:12px; width:100%;">
+                    <div style="${checkTitle.checked || checkRoute.checked ? 'border-left: 3px solid #ff007f; padding-left:10px;' : ''}">
+                        ${checkTitle.checked ? `<div style="font-size:16px; color:#ff007f; letter-spacing:1px;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:10px; color:#00f0ff; font-family:monospace; margin-top:2px;">${route}</div>` : ''}
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; background:rgba(0,0,0,0.8); padding:12px; border-radius:6px; border:1px solid rgba(255,0,127,0.2);">
+                        <div style="font-size:18px; color:#fff;">${d} <span style="font-size:10px; color:#00f0ff;">KM</span></div>
+                        <div style="font-size:18px; color:#fff;">${p} <span style="font-size:10px; color:#00f0ff;">PACE</span></div>
+                        <div style="grid-column: span 2; font-size:12px; color:rgba(255,255,255,0.7); border-top:1px solid rgba(255,255,255,0.1); padding-top:4px; font-family:monospace;">ELAPSED: ${t}</div>
+                    </div>
+                </div>`
+            },
+            { id: 3, name: "Kyoto Bamboo Minimal", render: (title, route, d, p, t) => `
+                <div class="f-montserrat" style="display:flex; flex-direction:column; gap:12px; text-align:right; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:13px; font-weight:300; color:#b4cbb7; letter-spacing:1px;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; color:rgba(255,255,255,0.5);">${route}</div>` : ''}
+                    </div>
+                    <div style="display:flex; flex-direction:column; text-align:left; gap:2px;">
+                        <div style="font-size:30px; font-weight:900; color:#fff;">${d}<span style="font-size:12px; font-weight:300; color:#b4cbb7; margin-left:5px;">KM</span></div>
+                        <div style="font-size:11px; color:rgba(255,255,255,0.8); font-family:monospace;">Pace: ${p} | Time: ${t}</div>
+                    </div>
+                </div>`
+            },
+            { id: 4, name: "Parisian Vogue Luxury", render: (title, route, d, p, t) => `
+                <div style="border:1px solid rgba(255,255,255,0.2); padding:12px; text-align:center; width:100%;">
+                    <div class="f-luxury" style="margin-bottom:8px;">
+                        ${checkTitle.checked ? `<div style="font-size:22px; font-style:italic; color:#fff; line-height:1.2;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div class="f-minimal" style="font-size:8px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-top:4px;">${route}</div>` : ''}
+                    </div>
+                    <div class="f-luxury" style="display:flex; justify-content:space-around; border-top:1px solid rgba(255,255,255,0.2); padding-top:10px;">
+                        <div><div style="font-size:14px; color:#fff;">${d}</div><div style="font-size:7px; font-style:italic; opacity:0.5;">Dist</div></div>
+                        <div><div style="font-size:14px; color:#fff;">${p}</div><div style="font-size:7px; font-style:italic; opacity:0.5;">Pace</div></div>
+                        <div><div style="font-size:14px; color:#fff;">${t}</div><div style="font-size:7px; font-style:italic; opacity:0.5;">Time</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 5, name: "London Underground Bold", render: (title, route, d, p, t) => `
+                <div class="f-sporty" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    ${checkTitle.checked || checkRoute.checked ? `
+                    <div style="background:rgba(0,0,0,0.75); padding:10px; border-left:4px solid #991b1b;">
+                        ${checkTitle.checked ? `<div style="font-size:15px; color:#fff;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; color:#94a3b8; text-transform:none;">${route}</div>` : ''}
+                    </div>` : ''}
+                    <div style="background:#991b1b; padding:10px; display:flex; justify-content:space-around; border-radius:4px; font-size:13px; color:white;">
+                        <div>${d} KM</div><div>${p} /KM</div><div>${t}</div>
+                    </div>
+                </div>`
+            },
+            { id: 6, name: "Berlin Techno Minimal", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="display:flex; flex-direction:column; gap:12px; text-transform:uppercase; font-size:11px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div>// ${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; opacity:0.5; margin-top:2px;">${route}</div>` : ''}
+                    </div>
+                    <div style="display:flex; flex-direction:column; font-family:monospace; gap:3px; border-bottom:1px solid white; padding-bottom:6px;">
+                        <div style="display:flex; justify-content:space-between;"><span>DIST:</span><span>${d} KM</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span>PACE:</span><span>${p}</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span>TIME:</span><span>${t}</span></div>
+                    </div>
+                </div>`
+            },
+            { id: 7, name: "New York Ticket Badge", render: (title, route, d, p, t) => `
+                <div class="f-montserrat" style="background:#fff; color:#000; padding:12px; border-radius:8px; display:flex; flex-direction:column; gap:6px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:12px; font-weight:900;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:8px; color:#64748b;">${route}</div>` : ''}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; border-top:1px dashed #cbd5e1; padding-top:6px; text-align:center;">
+                        <div><div style="font-size:14px; font-weight:900;">${d}</div><div style="font-size:7px; color:#64748b;">KM</div></div>
+                        <div><div style="font-size:14px; font-weight:900;">${p}</div><div style="font-size:7px; color:#64748b;">PACE</div></div>
+                        <div><div style="font-size:14px; font-weight:900;">${t}</div><div style="font-size:7px; color:#64748b;">TIME</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 8, name: "Monaco Yacht Gold", render: (title, route, d, p, t) => `
+                <div class="f-luxury" style="display:flex; flex-direction:column; gap:10px; text-align:center; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:18px; color:#dfb76c;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div class="f-minimal" style="font-size:8px; letter-spacing:2px; color:rgba(255,255,255,0.6);">${route}</div>` : ''}
+                    </div>
+                    <div class="f-minimal" style="display:flex; justify-content:space-between; font-size:11px; color:#fff; border-top:1px solid #dfb76c; padding-top:6px;">
+                        <div><b>${d}</b> <span style="font-size:8px; color:#dfb76c;">KM</span></div>
+                        <div><b>${p}</b> <span style="font-size:8px; color:#dfb76c;">PACE</span></div>
+                        <div><b>${t}</b></div>
+                    </div>
+                </div>`
+            },
+            { id: 9, name: "Reykjavik Glass Frost", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius:8px; padding:12px; width:100%; display:flex; flex-direction:column; gap:10px;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:14px;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; opacity:0.7;">${route}</div>` : ''}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.1); padding-top:6px;">
+                        <div><span style="font-size:16px;">${d}</span><span style="font-size:9px; margin-left:2px;">KM</span></div>
+                        <div><span style="font-size:16px;">${p}</span><span style="font-size:9px; margin-left:2px;">/K</span></div>
+                        <div><span style="font-size:16px;">${t}</span></div>
+                    </div>
+                </div>`
+            },
+            { id: 10, name: "Sydney Sun-Kissed Orange", render: (title, route, d, p, t) => `
+                <div class="f-montserrat" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:14px; font-weight:900; color:#f97316;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; color:rgba(255,255,255,0.7); margin-top:2px;">☀️ ${route}</div>` : ''}
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); text-align:center; background:rgba(249,115,22,0.15); padding:8px; border-radius:6px; border:1px solid #f97316;">
+                        <div><div style="font-size:13px; font-weight:700;">${d}</div><div style="font-size:7px; opacity:0.6;">KM</div></div>
+                        <div><div style="font-size:13px; font-weight:700;">${p}</div><div style="font-size:7px; opacity:0.6;">PACE</div></div>
+                        <div><div style="font-size:13px; font-weight:700;">${t}</div><div style="font-size:7px; opacity:0.6;">TIME</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 11, name: "Marathon Major Neon", render: (title, route, d, p, t) => `
+                <div class="f-sporty" style="background:#000; padding:12px; border:2px solid #a3e635; display:flex; justify-content:space-between; align-items:center; width:100%;">
+                    <div>
+                        <div style="color:#a3e635; font-size:22px; font-weight:900;">${d} <span style="font-size:12px; color:#fff;">KM</span></div>
+                        ${checkTitle.checked ? `<div style="font-size:9px; color:#94a3b8; text-transform:none;">${title}</div>` : ''}
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="color:#fff; font-size:13px;">Pace: ${p}</div>
+                        <div style="color:#fff; font-size:13px;">Time: ${t}</div>
+                        ${checkRoute.checked ? `<div style="font-size:8px; color:#a3e635;">${route}</div>` : ''}
+                    </div>
+                </div>`
+            },
+            { id: 12, name: "Chamonix Alpine Trail", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="width:100%; display:flex; flex-direction:column; gap:8px;">
+                    <div style="text-align:center; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:4px;">
+                        <div style="font-size:11px; letter-spacing:2px; color:#38bdf8;">▲ ALPINE TRAIL</div>
+                        ${checkRoute.checked ? `<div style="font-size:9px; opacity:0.6;">${route}</div>` : ''}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:12px; color:#fff;">
+                        <span>DST: <b>${d}K</b></span><span>PCE: <b>${p}</b></span><span>TIM: <b>${t}</b></span>
+                    </div>
+                </div>`
+            },
+            { id: 13, name: "Monza Speed Demon", render: (title, route, d, p, t) => `
+                <div class="f-sporty" style="display:flex; flex-direction:column; gap:8px; font-style:italic; width:100%;">
+                    ${checkTitle.checked ? `<div style="background:#e11d48; padding:4px 8px; width:fit-content; color:white; font-size:12px; font-weight:900;">${title}</div>` : ''}
+                    <div style="background:rgba(0,0,0,0.85); padding:10px; border-top:3px solid #e11d48;">
+                        <div style="font-size:22px; color:#fff;">${d} KM <span style="font-size:13px; color:#e11d48; margin-left:8px;">@ ${p}</span></div>
+                        <div style="font-size:9px; color:#94a3b8; font-style:normal; margin-top:2px;">⏱️ Time: ${t} ${checkRoute.checked ? ` | 📍 ${route}` : ''}</div>
+                    </div>
+                </div>`
+            },
+            { id: 14, name: "Nordic Dark Aurora", render: (title, route, d, p, t) => `
+                <div class="f-montserrat" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:13px; font-weight:700; color:#2dd4bf;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; color:rgba(255,255,255,0.4)">${route}</div>` : ''}
+                    </div>
+                    <div style="border-left:2px solid #2dd4bf; padding-left:8px; display:flex; flex-direction:column;">
+                        <div style="font-size:24px; font-weight:900; color:#fff; line-height:1;">${d} <span style="font-size:11px; color:#2dd4bf; font-weight:400;">KM</span></div>
+                        <div style="font-size:11px; opacity:0.8; font-family:monospace; margin-top:2px;">Pace: ${p} | Duration: ${t}</div>
+                    </div>
+                </div>`
+            },
+            { id: 15, name: "Retro Digital Dashboard", render: (title, route, d, p, t) => `
+                <div class="f-mono" style="background:#020617; border:1px solid #334155; padding:12px; border-radius:6px; display:flex; flex-direction:column; gap:4px; color:#22c55e; width:100%;">
+                    <div style="font-size:9px; color:#64748b;">[ SYSTEM STATS RECEIPT ]</div>
+                    ${checkTitle.checked ? `<div>TITLE: ${title}</div>` : ''}
+                    <div style="display:flex; justify-content:space-between; font-size:13px;"><span>DIST: ${d} KM</span><span>PACE: ${p}</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:13px;"><span>TIME: ${t}</span><span>LOC: ${checkRoute.checked ? route : 'HIDDEN'}</span></div>
+                </div>`
+            },
+            { id: 16, name: "Parisian Noir Elegance", render: (title, route, d, p, t) => `
+                <div class="f-luxury" style="display:flex; flex-direction:column; gap:10px; border-left:1px solid rgba(255,255,255,0.4); padding-left:12px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:18px; text-transform:uppercase; color:#fff; letter-spacing:1px; line-height:1.2;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div class="f-minimal" style="font-size:8px; opacity:0.5; text-transform:uppercase; margin-top:2px;">${route}</div>` : ''}
+                    </div>
+                    <div style="font-size:16px; color:#fff;"><b>${d}</b><span style="font-size:10px; font-style:italic; opacity:0.6; margin-left:2px;">km</span> &nbsp;•&nbsp; <b>${p}</b><span style="font-size:10px; font-style:italic; opacity:0.6; margin-left:2px;">pace</span></div>
+                </div>`
+            },
+            { id: 17, name: "Architect Grid Line", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="display:flex; flex-direction:column; gap:10px; border:1px solid rgba(255,255,255,0.1); padding:10px; width:100%;">
+                    <div style="display:flex; justify-content:space-between; font-size:9px; color:rgba(255,255,255,0.4); border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px;">
+                        <span>SPEC // ${checkTitle.checked ? title.substring(0,10).toUpperCase() : 'META'}</span>
+                        <span>${checkRoute.checked ? route : ''}</span>
+                    </div>
+                    <div style="font-size:32px; font-weight:300; letter-spacing:-1px; color:#fff; line-height:1;">${d}<span style="font-size:12px; font-weight:700; color:#fc4c02; margin-left:4px;">KM</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; opacity:0.7; font-family:monospace;"><span>P: ${p}</span><span>T: ${t}</span></div>
+                </div>`
+            },
+            { id: 18, name: "Milano Premium Gold Split", render: (title, route, d, p, t) => `
+                <div class="f-montserrat" style="background:rgba(20,27,45,0.9); padding:12px; border:1px solid #ca8a04; border-radius:4px; width:100%;">
+                    <div style="font-size:9px; letter-spacing:2px; color:#eab308; text-transform:uppercase; font-weight:700;">MILANO ATHLETICS</div>
+                    <div style="font-size:22px; font-weight:900; color:#fff; margin:2px 0;">${d} <span style="font-size:12px; font-weight:300;">KM</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:10px; color:rgba(255,255,255,0.6); border-top:1px solid rgba(255,255,255,0.1); padding-top:4px;">
+                        <span>Pace: ${p}</span>
+                        <span>${checkRoute.checked ? route : t}</span>
+                    </div>
+                </div>`
+            },
+            { id: 19, name: "Tokyo Cyber Neon v2", render: (title, route, d, p, t) => `
+                <div class="f-mono" style="display:flex; flex-direction:column; gap:10px; color:#00ffcc; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:14px; font-weight:700;">// ${title.toUpperCase()}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; color:#fff; opacity:0.6;">LOC // ${route}</div>` : ''}
+                    </div>
+                    <div style="background:rgba(0,0,0,0.8); padding:8px; border-right:3px solid #00ffcc;">
+                        <div style="font-size:18px; color:#fff;">DIST: <span style="color:#00ffcc;">${d} KM</span></div>
+                        <div style="font-size:12px; opacity:0.8;">P: ${p} | T: ${t}</div>
+                    </div>
+                </div>`
+            },
+            { id: 20, name: "Horizon Nature Eco", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:13px; color:#fed7aa;">🌿 ${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; opacity:0.5;">${route}</div>` : ''}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.08); padding:6px 12px; border-radius:20px; width:fit-content; font-size:11px;">
+                        <span><b>${d}</b> KM</span><span style="opacity:0.3;">|</span><span><b>${p}</b> /K</span><span style="opacity:0.3;">|</span><span><b>${t}</b></span>
+                    </div>
+                </div>`
+            },
+            { id: 21, name: "Grand Prix Chrono Split", render: (title, route, d, p, t) => `
+                <div class="f-sporty" style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                    <div style="display:flex; justify-content:space-between; font-size:10px; background:#fff; color:#000; padding:2px 6px; font-weight:800;">
+                        <span>${checkTitle.checked ? title.toUpperCase() : 'LAP RECORD'}</span>
+                        <span>${checkRoute.checked ? route : ''}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                        <div><div style="font-size:32px; font-weight:900; line-height:0.9;">${d}</div><div style="font-size:8px; opacity:0.6;">KILOMETERS</div></div>
+                        <div style="text-align:right; font-size:13px;"><div>PACE: ${p}</div><div>TIME: ${t}</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 22, name: "London Major Elite", render: (title, route, d, p, t) => `
+                <div class="f-sporty" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #1d4ed8; padding-bottom:4px;">
+                        <span style="font-size:14px; font-weight:900; color:#ef4444;">${checkTitle.checked ? title.substring(0,14).toUpperCase() : 'LDN_MAJOR'}</span>
+                        ${checkRoute.checked ? `<span style="font-size:9px; color:#fff; opacity:0.6;">📍 ${route}</span>` : ''}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; background:rgba(0,0,0,0.8); padding:10px; border-radius:4px;">
+                        <div><div style="font-size:20px; color:#fff;">${d} <span style="font-size:12px; color:#ef4444;">KM</span></div></div>
+                        <div style="text-align:right;"><div style="font-size:13px; color:#fff;">PACE: ${p}</div><div style="font-size:13px; color:#fff;">TIME: ${t}</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 23, name: "Cyberpunk Edgerunner", render: (title, route, d, p, t) => `
+                <div class="f-mono" style="display:flex; flex-direction:column; gap:6px; width:100%;">
+                    ${checkTitle.checked ? `<div style="background:#facc15; color:#000; padding:2px 6px; width:fit-content; font-weight:900; font-size:11px;">${title}</div>` : ''}
+                    <div style="background:#000; border:2px solid #facc15; padding:10px; display:flex; flex-direction:column; gap:2px;">
+                        <div style="font-size:20px; color:#facc15; font-weight:900;">DIST >> ${d} KM</div>
+                        <div style="font-size:11px; color:#fff;">PACE: ${p} // TIME: ${t}</div>
+                        ${checkRoute.checked ? `<div style="font-size:8px; color:#64748b; border-top:1px solid #334155; padding-top:4px;">SYS_LOC: ${route}</div>` : ''}
+                    </div>
+                </div>`
+            },
+            { id: 24, name: "Nordic Winter Clean v2", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="display:flex; flex-direction:column; gap:10px; border-top:2px solid #fff; padding-top:8px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:12px; letter-spacing:1px;">${title.toUpperCase()}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; opacity:0.5; margin-top:2px;">${route}</div>` : ''}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <span style="font-size:28px; font-weight:900; letter-spacing:-1px;">${d}<span style="font-size:12px; font-weight:300; margin-left:2px;">km</span></span>
+                        <span style="font-size:11px; opacity:0.8; font-family:monospace;">${p} @ ${t}</span>
+                    </div>
+                </div>`
+            },
+            { id: 25, name: "Boston Blue Ribbon", render: (title, route, d, p, t) => `
+                <div class="f-sporty" style="background:#1e3a8a; border-left:6px solid #eab308; padding:12px; display:flex; flex-direction:column; gap:4px; border-radius:0 6px 6px 0; width:100%;">
+                    <div style="font-size:10px; color:#eab308; font-weight:700; letter-spacing:1px;">${checkTitle.checked ? title.toUpperCase() : 'BOSTON RUN_ASSOC'}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:24px; font-weight:900; color:#fff; line-height:1;">${d} <span style="font-size:12px; color:#eab308; font-weight:400;">KM</span></div>
+                        <div style="text-align:right; font-family:monospace; font-size:11px; color:#fff; opacity:0.9;">
+                            <div>Pace: ${p}</div><div>Time: ${t}</div>
+                            ${checkRoute.checked ? `<div style="font-size:8px; color:#eab308;">${route}</div>` : ''}
+                        </div>
+                    </div>
+                </div>`
+            },
+            { id: 26, name: "Vintage Polaroid Runner", render: (title, route, d, p, t) => `
+                <div class="f-luxury" style="background:#f8fafc; color:#1e293b; padding:12px; border-radius:4px; display:flex; flex-direction:column; gap:4px; width:100%;">
+                    ${checkTitle.checked ? `<div style="font-size:13px; font-style:italic; font-weight:600; color:#0f172a;">${title}</div>` : ''}
+                    <div class="f-minimal" style="display:flex; justify-content:space-between; border-top:1px solid #e2e8f0; padding-top:4px; font-size:11px;">
+                        <span><b>${d}</b> km</span>
+                        <span><b>${p}</b> pace</span>
+                        <span>${checkRoute.checked ? route.substring(0,10) : t}</span>
+                    </div>
+                </div>`
+            },
+            { id: 27, name: "Carbon Fiber Stealth", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    ${checkTitle.checked ? `<div style="background:rgba(15,23,42,0.9); border:1px solid #334155; padding:6px 10px; border-radius:4px; width:fit-content; font-size:11px;"><span style="color:#64748b;">//</span> ${title}</div>` : ''}
+                    <div style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border:1px solid #475569; padding:12px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                        <div><div style="font-size:8px; color:#94a3b8;">DISTANCE</div><div style="font-size:16px; font-weight:900; color:#fff;">${d} KM</div></div>
+                        <div style="text-align:center;"><div style="font-size:8px; color:#94a3b8;">PACE</div><div style="font-size:16px; font-weight:900; color:#fc4c02;">${p}</div></div>
+                        <div><div style="font-size:8px; color:#94a3b8;">${checkRoute.checked ? 'ROUTE' : 'TIME'}</div><div style="font-size:13px; font-weight:900; color:#fff; text-align:right;">${checkRoute.checked ? route.substring(0,8) : t}</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 28, name: "Yogyakarta Heritage Run", render: (title, route, d, p, t) => `
+                <div class="f-montserrat" style="border:1px solid #b45309; padding:10px; background:rgba(0,0,0,0.5); width:100%; display:flex; flex-direction:column; gap:8px;">
+                    <div style="text-align:center;">
+                        <div style="font-size:11px; color:#f59e0b; font-weight:700; letter-spacing:1px;">${checkTitle.checked ? title.toUpperCase() : 'HERITAGE RUN'}</div>
+                        ${checkRoute.checked ? `<div style="font-size:8px; color:#fff; opacity:0.6; margin-top:2px;">📍 ${route}</div>` : ''}
+                    </div>
+                    <div style="display:flex; justify-content:space-around; align-items:center; border-top:1px solid #b45309; padding-top:6px; text-align:center;">
+                        <div><div style="font-size:14px; font-weight:700; color:#fff;">${d}</div><div style="font-size:7px; color:#f59e0b;">KM</div></div>
+                        <div><div style="font-size:14px; font-weight:700; color:#fff;">${p}</div><div style="font-size:7px; color:#f59e0b;">PACE</div></div>
+                        <div><div style="font-size:14px; font-weight:700; color:#fff;">${t}</div><div style="font-size:7px; color:#f59e0b;">TIME</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 29, name: "Neon Horizon Dusk", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:14px; background:linear-gradient(to right, #c084fc, #f472b6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:900;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:9px; opacity:0.5;">${route}</div>` : ''}
+                    </div>
+                    <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(192,132,252,0.2); padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <div><div style="font-size:18px; font-weight:900; color:#fff;">${d}</div><div style="font-size:7px; color:#c084fc;">KILOMETER</div></div>
+                        <div style="text-align:right;"><div style="font-size:12px; color:#fff;">Pace: ${p}</div><div style="font-size:12px; color:#f472b6;">Time: ${t}</div></div>
+                    </div>
+                </div>`
+            },
+            { id: 30, name: "Minimalist Bold Block", render: (title, route, d, p, t) => `
+                <div class="f-anton" style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                    <div>
+                        ${checkTitle.checked ? `<div style="font-size:18px; color:#fff; letter-spacing:0.5px;">${title}</div>` : ''}
+                        ${checkRoute.checked ? `<div class="f-minimal" style="font-size:9px; color:#fc4c02; font-weight:600;">📍 ${route}</div>` : ''}
+                    </div>
+                    <div class="f-sporty" style="display:flex; gap:12px; font-size:14px; color:#fff; border-top:2px solid #fc4c02; padding-top:4px;">
+                        <div><b>${d}</b> <span style="font-size:9px; opacity:0.6;">KM</span></div>
+                        <div><b>${p}</b> <span style="font-size:9px; opacity:0.6;">PACE</span></div>
+                        <div><b>${t}</b></div>
+                    </div>
+                </div>`
+            },
+            { id: 31, name: "Swiss Alps Altitude", render: (title, route, d, p, t) => `
+                <div class="f-minimal" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    ${checkTitle.checked || checkRoute.checked ? `
+                    <div style="border-left:2px solid #fff; padding-left:6px;">
+                        ${checkTitle.checked ? `<div style="font-size:12px; font-weight:600;">${title.toUpperCase()}</div>` : ''}
+                        ${checkRoute.checked ? `<div style="font-size:8px; opacity:0.5;">RTE // ${route}</div>` : ''}
+                    </div>` : ''}
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-family:monospace; font-size:13px; background:rgba(0,0,0,0.8); padding:10px; border-radius:4px;">
+                        <div>DIST: <span style="color:#22c55e;">${d}K</span></div>
+                        <div>PACE: <span>${p}</span></div>
+                        <div style="grid-column:span 2; border-top:1px solid #334155; padding-top:2px; font-size:11px; opacity:0.7;">TIME: ${t}</div>
+                    </div>
+                </div>`
+            }
+        ];
+
+        function updateTemplate() {
+            const title = inputTitle.value || "Running Session";
+            const route = inputRoute.value || "Rute Umum";
+            const d = parseFloat(distanceInput.value || 0).toFixed(2);
+            const p = paceInput.value || '00:00';
+            const t = timeInput.value || '00:00:00';
+            
+            const matchedTemplate = templateLibrary.find(t => t.id === currentTemplate);
+            if (matchedTemplate) {
+                dragElement.innerHTML = matchedTemplate.render(title, route, d, p, t);
+            }
+        }
+
+        function initSelectors() {
+            selectorContainer.innerHTML = "";
+            templateLibrary.sort((a,b)=>a.id-b.id).forEach((template) => {
+                const btn = document.createElement('button');
+                btn.className = `tmpl-btn ${template.id === currentTemplate ? 'active' : ''}`;
+                btn.innerHTML = `<span>#${template.id} - ${template.name}</span>`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tmpl-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTemplate = template.id;
+                    updateTemplate();
+                };
+                selectorContainer.appendChild(btn);
+            });
+        }
+
+        // --- DRAG & DROP ENGINE ---
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        dragElement.addEventListener('mousedown', startDrag);
+        dragElement.addEventListener('touchstart', startDrag, { passive: false });
+
+        function startDrag(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+            
+            isDragging = true;
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+            startX = clientX;
+            startY = clientY;
+
+            const rect = dragElement.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            initialLeft = rect.left - canvasRect.left;
+            initialTop = rect.top - canvasRect.top;
+
+            dragElement.style.bottom = 'auto';
+            dragElement.style.right = 'auto';
+            dragElement.style.left = initialLeft + 'px';
+            dragElement.style.top = initialTop + 'px';
+
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchmove', dragMove, { passive: false });
+            document.addEventListener('touchend', stopDrag);
+            
+            if(e.cancelable) e.preventDefault();
+        }
+
+        function dragMove(e) {
+            if (!isDragging) return;
+
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+
+            let newLeft = initialLeft + dx;
+            let newTop = initialTop + dy;
+
+            const canvasRect = canvas.getBoundingClientRect();
+            const dragRect = dragElement.getBoundingClientRect();
+
+            if (newLeft < 0) newLeft = 0;
+            if (newTop < 0) newTop = 0;
+            if (newLeft + dragRect.width > canvasRect.width) newLeft = canvasRect.width - dragRect.width;
+            if (newTop + dragRect.height > canvasRect.height) newTop = canvasRect.height - dragRect.height;
+
+            dragElement.style.left = newLeft + 'px';
+            dragElement.style.top = newTop + 'px';
+            
+            if(e.cancelable) e.preventDefault();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', dragMove);
+            document.removeEventListener('touchend', stopDrag);
+        }
+
+        function downloadOverlay() {
+            html2canvas(canvas, { backgroundColor: null, scale: 3 }).then(resultCanvas => {
+                const link = document.createElement('a');
+                link.download = `overlay-premium-${currentTemplate}.png`;
+                link.href = resultCanvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function copyOverlay() {
+            html2canvas(canvas, { backgroundColor: null, scale: 2 }).then(resultCanvas => {
+                resultCanvas.toBlob(blob => {
+                    if (!blob) return;
+                    navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(() => {
+                        alert('Sukses disalin! Overlay siap ditempel.');
+                    });
+                });
+            });
+        }
+
+        initSelectors();
+        updateTemplate();
+    </script>
+</body>
+</html>
