@@ -65,13 +65,13 @@
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3 w-full">
-                <button onclick="copyToClipboard()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 border border-slate-700 shadow-lg">
-                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                    Copy Text
+                <button onclick="copyImage()" id="btn-copy" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 border border-slate-700 shadow-lg">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    <span>Copy Image</span>
                 </button>
                 <button onclick="downloadTransparentPNG()" class="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-black py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-xl">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Download Image
+                    <span>Download Image</span>
                 </button>
             </div>
         </div>
@@ -446,18 +446,40 @@
             captureCard.innerHTML = templates[currentTemplateId].render(formattedDist, paceStr, displayTimeStr);
         }
 
-        function copyToClipboard() {
-            const dist = parseFloat(elDistance.value) || 0;
-            const pace = elPace.value || "00:00";
-            const timeSecs = parseTime(elTime.value);
-            const displayTimeStr = formatDisplayTime(timeSecs);
+        // FUNGSI COPY GAMBAR TRANSPARAN
+        function copyImage() {
+            const btnSpan = document.querySelector('#btn-copy span');
+            const originalText = btnSpan.innerText;
+            btnSpan.innerText = 'Menyalin...';
 
-            const text = `🏃‍♂️ RunStats Update!\nJarak: ${dist.toFixed(2)} KM\nPace: ${pace} /KM\nWaktu: ${displayTimeStr}\n#KeepRunning`;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Statistik berhasil disalin ke clipboard!");
-            }).catch(() => {
-                alert("Gagal menyalin teks.");
+            html2canvas(captureCard.firstElementChild, {
+                backgroundColor: null,
+                scale: 3,
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                canvas.toBlob(blob => {
+                    if (!blob) {
+                        alert("Gagal memproses gambar.");
+                        btnSpan.innerText = originalText;
+                        return;
+                    }
+                    try {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        navigator.clipboard.write([item]).then(() => {
+                            btnSpan.innerText = 'Tersalin!';
+                            setTimeout(() => { btnSpan.innerText = originalText; }, 2000);
+                        }).catch(err => {
+                            console.error(err);
+                            alert("Izin Ditolak: Browser Anda mencegah penyalinan gambar langsung. Silakan gunakan tombol Download Image.");
+                            btnSpan.innerText = originalText;
+                        });
+                    } catch (error) {
+                        console.error(error);
+                        alert("Browser Anda belum mendukung fitur penyalinan gambar (ClipboardItem). Silakan gunakan tombol Download Image.");
+                        btnSpan.innerText = originalText;
+                    }
+                }, 'image/png');
             });
         }
 
