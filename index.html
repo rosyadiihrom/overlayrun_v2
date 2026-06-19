@@ -59,8 +59,10 @@
             
             <div class="w-full bg-transparent-grid border border-slate-800 p-6 rounded-2xl flex justify-center items-center relative overflow-hidden min-h-[360px]">
                 
-                <div id="capture-card" class="w-full max-w-sm transition-all duration-300">
-                    </div>
+                <div class="w-[340px] flex justify-center items-center">
+                    <div id="capture-target" class="w-full transition-all duration-300">
+                        </div>
+                </div>
 
             </div>
 
@@ -82,7 +84,7 @@
         const elDistance = document.getElementById('distance');
         const elPace = document.getElementById('pace');
         const elTime = document.getElementById('time');
-        const captureCard = document.getElementById('capture-card');
+        const captureCard = document.getElementById('capture-target');
         const templateGrid = document.getElementById('template-grid');
 
         let lastEdited = 'pace';
@@ -145,48 +147,48 @@
             renderCard();
         }
 
-        // SEMUA TEMPLATE HANYA TULISAN TANPA LATAR BELAKANG / BORDER KOTAK (TANPA NAMA TEMPLATE DI DALAM PREVIEW)
+        // PERBAIKAN PADA TEMPLATE: Mengganti "items-baseline" menjadi "items-end" karena html2canvas membaca baseline secara berbeda.
         const templates = [
             {
                 name: "1",
                 render: (d, p, t) => `
-                    <div class="p-6 font-mono text-emerald-400">
+                    <div class="p-6 font-mono text-emerald-400 w-full box-border">
                         <div class="mb-4">
                             <span class="text-xs block text-slate-300">DISTANCE</span>
-                            <span class="text-5xl font-black text-white">${d}</span> <span class="text-sm font-bold text-emerald-400">KM</span>
+                            <div class="flex items-end gap-1"><span class="text-5xl font-black text-white leading-none">${d}</span><span class="text-sm font-bold text-emerald-400 pb-1">KM</span></div>
                         </div>
                         <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-700/50">
-                            <div><span class="text-[10px] block text-slate-400">PACE</span><span class="text-xl font-bold text-cyan-400">${p}</span></div>
-                            <div><span class="text-[10px] block text-slate-400">TIME</span><span class="text-xl font-bold text-yellow-400">${t}</span></div>
+                            <div><span class="text-[10px] block text-slate-400">PACE</span><span class="text-xl font-bold text-cyan-400 leading-none">${p}</span></div>
+                            <div><span class="text-[10px] block text-slate-400">TIME</span><span class="text-xl font-bold text-yellow-400 leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "2",
                 render: (d, p, t) => `
-                    <div class="p-6 text-slate-100 text-center">
+                    <div class="p-6 text-slate-100 text-center w-full box-border">
                         <div class="mb-4">
-                            <span class="text-6xl font-extrabold tracking-tight block">${d}</span>
-                            <span class="text-xs uppercase font-bold tracking-widest text-slate-400">Kilometers</span>
+                            <span class="text-6xl font-extrabold tracking-tight block leading-none">${d}</span>
+                            <span class="text-xs uppercase font-bold tracking-widest text-slate-400 mt-2 block">Kilometers</span>
                         </div>
                         <div class="flex justify-center gap-8 pt-4">
-                            <div><span class="text-xs text-slate-400 block mb-1">Pace</span><span class="text-lg font-bold">${p}</span></div>
-                            <div><span class="text-xs text-slate-400 block mb-1">Time</span><span class="text-lg font-bold">${t}</span></div>
+                            <div><span class="text-xs text-slate-400 block mb-1">Pace</span><span class="text-lg font-bold leading-none">${p}</span></div>
+                            <div><span class="text-xs text-slate-400 block mb-1">Time</span><span class="text-lg font-bold leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "3",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white">
+                    <div class="p-6 text-white w-full box-border">
                         <div class="space-y-4">
                             <div class="flex justify-between items-end border-b border-white/20 pb-2">
-                                <span class="text-sm opacity-70">Distance</span>
-                                <span class="text-4xl font-black">${d} <span class="text-sm font-normal">KM</span></span>
+                                <span class="text-sm opacity-70 mb-1">Distance</span>
+                                <div class="flex items-end gap-1"><span class="text-4xl font-black leading-none">${d}</span><span class="text-sm font-normal pb-1">KM</span></div>
                             </div>
                             <div class="grid grid-cols-2 gap-6">
-                                <div><span class="text-xs opacity-60 block">Avg Pace</span><span class="text-xl font-bold">${p}</span></div>
-                                <div><span class="text-xs opacity-60 block">Duration</span><span class="text-xl font-bold">${t}</span></div>
+                                <div><span class="text-xs opacity-60 block">Avg Pace</span><span class="text-xl font-bold leading-none">${p}</span></div>
+                                <div><span class="text-xs opacity-60 block">Duration</span><span class="text-xl font-bold leading-none">${t}</span></div>
                             </div>
                         </div>
                     </div>`
@@ -194,155 +196,155 @@
             {
                 name: "4",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white flex flex-col justify-between">
+                    <div class="p-6 text-white flex flex-col justify-between w-full box-border">
                         <div>
-                            <h2 style="font-family:'Barlow Condensed', sans-serif;" class="text-7xl font-black tracking-tighter italic leading-none">${d}<span class="text-2xl font-normal not-italic text-zinc-400 ml-1">KM</span></h2>
+                            <div class="flex items-end gap-1"><h2 style="font-family:'Barlow Condensed', sans-serif;" class="text-7xl font-black tracking-tighter italic leading-none">${d}</h2><span class="text-2xl font-normal text-zinc-400 mb-1">KM</span></div>
                         </div>
                         <div class="grid grid-cols-2 gap-4 mt-4">
-                            <div><span class="text-xs uppercase text-zinc-400 font-bold block">Pace</span><span class="text-2xl font-black italic text-red-500 font-mono">${p}</span></div>
-                            <div><span class="text-xs uppercase text-zinc-400 font-bold block">Time</span><span class="text-2xl font-black italic text-white font-mono">${t}</span></div>
+                            <div><span class="text-xs uppercase text-zinc-400 font-bold block">Pace</span><span class="text-2xl font-black italic text-red-500 font-mono leading-none">${p}</span></div>
+                            <div><span class="text-xs uppercase text-zinc-400 font-bold block">Time</span><span class="text-2xl font-black italic text-white font-mono leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "5",
                 render: (d, p, t) => `
-                    <div class="p-6 text-amber-100 text-center">
-                        <div class="text-6xl font-light tracking-widest my-2">${d}</div>
-                        <div class="text-xs uppercase tracking-widest text-amber-500 mb-6">Kilometers</div>
+                    <div class="p-6 text-amber-100 text-center w-full box-border">
+                        <div class="text-6xl font-light tracking-widest my-2 leading-none">${d}</div>
+                        <div class="text-xs uppercase tracking-widest text-amber-500 mb-6 mt-2">Kilometers</div>
                         <div class="flex justify-around items-center text-sm font-mono">
-                            <div><span class="opacity-50 block text-[11px] mb-0.5">PACE</span><span class="text-amber-300 font-bold text-lg">${p}</span></div>
+                            <div><span class="opacity-50 block text-[11px] mb-0.5">PACE</span><span class="text-amber-300 font-bold text-lg leading-none">${p}</span></div>
                             <div class="text-amber-500/50">|</div>
-                            <div><span class="opacity-50 block text-[11px] mb-0.5">TIME</span><span class="text-amber-300 font-bold text-lg">${t}</span></div>
+                            <div><span class="opacity-50 block text-[11px] mb-0.5">TIME</span><span class="text-amber-300 font-bold text-lg leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "6",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white text-right">
+                    <div class="p-6 text-white text-right w-full box-border">
                         <span class="text-xs uppercase font-bold tracking-widest text-indigo-400">DISTANCE</span>
-                        <div class="text-6xl font-black mt-1 mb-6">${d} <span class="text-lg font-medium opacity-80">Km</span></div>
+                        <div class="flex justify-end items-end mt-1 mb-6 gap-1"><span class="text-6xl font-black leading-none">${d}</span><span class="text-lg font-medium opacity-80 mb-1">Km</span></div>
                         <div class="flex justify-end gap-6 text-left">
-                            <div><span class="text-xs text-slate-400 block">Pace</span><span class="text-xl font-bold text-indigo-300 font-mono">${p}</span></div>
-                            <div><span class="text-xs text-slate-400 block">Time</span><span class="text-xl font-bold text-white font-mono">${t}</span></div>
+                            <div><span class="text-xs text-slate-400 block">Pace</span><span class="text-xl font-bold text-indigo-300 font-mono leading-none">${p}</span></div>
+                            <div><span class="text-xs text-slate-400 block">Time</span><span class="text-xl font-bold text-white font-mono leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "7",
                 render: (d, p, t) => `
-                    <div class="p-5 font-mono text-yellow-500">
+                    <div class="p-5 font-mono text-yellow-500 w-full box-border">
                         <div class="mb-4">
                             <span class="text-xs text-zinc-400 block font-sans">DIST</span>
-                            <span style="font-family:'Share Tech Mono', monospace;" class="text-5xl font-bold tracking-widest text-yellow-400">${d}</span>
+                            <span style="font-family:'Share Tech Mono', monospace;" class="text-5xl font-bold tracking-widest text-yellow-400 leading-none">${d}</span>
                         </div>
                         <div class="grid grid-cols-2 text-sm gap-4">
-                            <div><span class="text-[10px] text-zinc-400 block font-sans">PACE</span><span style="font-family:'Share Tech Mono', monospace;" class="font-bold text-xl text-orange-400">${p}</span></div>
-                            <div><span class="text-[10px] text-zinc-400 block font-sans">TIME</span><span style="font-family:'Share Tech Mono', monospace;" class="font-bold text-xl text-yellow-400">${t}</span></div>
+                            <div><span class="text-[10px] text-zinc-400 block font-sans">PACE</span><span style="font-family:'Share Tech Mono', monospace;" class="font-bold text-xl text-orange-400 leading-none">${p}</span></div>
+                            <div><span class="text-[10px] text-zinc-400 block font-sans">TIME</span><span style="font-family:'Share Tech Mono', monospace;" class="font-bold text-xl text-yellow-400 leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "8",
                 render: (d, p, t) => `
-                    <div class="p-6 text-emerald-400 text-center relative">
-                        <div class="text-6xl font-serif font-bold text-white mb-4">${d} <span class="text-xl font-sans font-light text-emerald-200">km</span></div>
+                    <div class="p-6 text-emerald-400 text-center relative w-full box-border">
+                        <div class="flex justify-center items-end mb-4 gap-1"><span class="text-6xl font-serif font-bold text-white leading-none">${d}</span><span class="text-xl font-sans font-light text-emerald-200 mb-1">km</span></div>
                         <div class="flex justify-center gap-6">
-                            <div><span class="text-[10px] uppercase text-emerald-200/60 block font-semibold">Pace</span><span class="font-bold text-xl text-amber-100">${p}</span></div>
-                            <div><span class="text-[10px] uppercase text-emerald-200/60 block font-semibold">Time</span><span class="font-bold text-xl text-amber-100">${t}</span></div>
+                            <div><span class="text-[10px] uppercase text-emerald-200/60 block font-semibold">Pace</span><span class="font-bold text-xl text-amber-100 leading-none">${p}</span></div>
+                            <div><span class="text-[10px] uppercase text-emerald-200/60 block font-semibold">Time</span><span class="font-bold text-xl text-amber-100 leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "9",
                 render: (d, p, t) => `
-                    <div class="p-6 text-zinc-300">
+                    <div class="p-6 text-zinc-300 w-full box-border">
                         <div class="space-y-4">
-                            <div class="flex justify-between items-baseline border-b border-zinc-700/50 pb-2"><span class="text-xs font-bold tracking-widest text-zinc-500 uppercase">DIST</span><span class="text-4xl font-black text-white font-mono">${d} KM</span></div>
-                            <div class="flex justify-between items-baseline border-b border-zinc-700/50 pb-2"><span class="text-xs font-bold tracking-widest text-zinc-500 uppercase">PACE</span><span class="text-2xl font-bold text-zinc-300 font-mono">${p}</span></div>
-                            <div class="flex justify-between items-baseline"><span class="text-xs font-bold tracking-widest text-zinc-500 uppercase">TIME</span><span class="text-2xl font-bold text-zinc-100 font-mono">${t}</span></div>
+                            <div class="flex justify-between items-end border-b border-zinc-700/50 pb-2"><span class="text-xs font-bold tracking-widest text-zinc-500 uppercase mb-1">DIST</span><span class="text-4xl font-black text-white font-mono leading-none">${d} KM</span></div>
+                            <div class="flex justify-between items-end border-b border-zinc-700/50 pb-2"><span class="text-xs font-bold tracking-widest text-zinc-500 uppercase mb-1">PACE</span><span class="text-2xl font-bold text-zinc-300 font-mono leading-none">${p}</span></div>
+                            <div class="flex justify-between items-end"><span class="text-xs font-bold tracking-widest text-zinc-500 uppercase mb-1">TIME</span><span class="text-2xl font-bold text-zinc-100 font-mono leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "10",
                 render: (d, p, t) => `
-                    <div class="p-6 text-slate-200">
-                        <div class="mb-6">
-                            <span class="text-5xl font-black tracking-tight text-white">${d}</span> <span class="text-sm font-bold text-orange-400">KM</span>
+                    <div class="p-6 text-slate-200 w-full box-border">
+                        <div class="mb-6 flex items-end gap-2">
+                            <span class="text-5xl font-black tracking-tight text-white leading-none">${d}</span><span class="text-sm font-bold text-orange-400 mb-1">KM</span>
                         </div>
                         <div class="flex gap-8">
-                            <div><span class="text-[10px] text-slate-400 uppercase block font-semibold">Pace</span><span class="text-xl font-bold text-white">${p}</span></div>
-                            <div><span class="text-[10px] text-slate-400 uppercase block font-semibold">Time</span><span class="text-xl font-bold text-orange-400">${t}</span></div>
+                            <div><span class="text-[10px] text-slate-400 uppercase block font-semibold">Pace</span><span class="text-xl font-bold text-white leading-none">${p}</span></div>
+                            <div><span class="text-[10px] text-slate-400 uppercase block font-semibold">Time</span><span class="text-xl font-bold text-orange-400 leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "11",
                 render: (d, p, t) => `
-                    <div class="p-6 font-mono text-blue-300">
+                    <div class="p-6 font-mono text-blue-300 w-full box-border">
                         <div class="mb-6 flex items-end gap-2">
-                            <span class="text-6xl font-bold text-white">${d}</span>
+                            <span class="text-6xl font-bold text-white leading-none">${d}</span>
                             <span class="text-sm font-bold text-blue-400 pb-1">KM</span>
                         </div>
                         <div class="flex gap-6">
-                            <div><span class="text-[10px] text-blue-500 block">PACE_AVG</span><span class="font-bold text-xl text-cyan-300">${p}</span></div>
-                            <div><span class="text-[10px] text-blue-500 block">TIME_TOTAL</span><span class="font-bold text-xl text-white">${t}</span></div>
+                            <div><span class="text-[10px] text-blue-500 block">PACE_AVG</span><span class="font-bold text-xl text-cyan-300 leading-none">${p}</span></div>
+                            <div><span class="text-[10px] text-blue-500 block">TIME_TOTAL</span><span class="font-bold text-xl text-white leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "12",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white text-center">
+                    <div class="p-6 text-white text-center w-full box-border">
                         <div class="mb-6">
-                            <span class="text-xs block font-bold uppercase text-zinc-400">DISTANCE</span>
-                            <span class="text-6xl font-black tracking-tighter">${d} KM</span>
+                            <span class="text-xs block font-bold uppercase text-zinc-400 mb-2">DISTANCE</span>
+                            <span class="text-6xl font-black tracking-tighter leading-none">${d} KM</span>
                         </div>
                         <div class="flex justify-center gap-8">
-                            <div><span class="text-[10px] font-bold block text-zinc-400">PACE</span><span class="text-2xl font-black">${p}</span></div>
-                            <div><span class="text-[10px] font-bold block text-zinc-400">TIME</span><span class="text-2xl font-black">${t}</span></div>
+                            <div><span class="text-[10px] font-bold block text-zinc-400">PACE</span><span class="text-2xl font-black leading-none">${p}</span></div>
+                            <div><span class="text-[10px] font-bold block text-zinc-400">TIME</span><span class="text-2xl font-black leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "13",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white">
-                        <div class="mb-6">
-                            <span class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-indigo-300">${d}</span>
-                            <span class="text-lg font-normal ml-1 text-indigo-300">km</span>
+                    <div class="p-6 text-white w-full box-border">
+                        <div class="mb-6 flex items-end gap-1">
+                            <span class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-indigo-300 leading-none">${d}</span>
+                            <span class="text-lg font-normal text-indigo-300 mb-1">km</span>
                         </div>
                         <div class="flex gap-8">
-                            <div><span class="text-[11px] text-indigo-300 block mb-0.5">Pace</span><span class="text-2xl font-bold font-mono">${p}</span></div>
-                            <div><span class="text-[11px] text-indigo-300 block mb-0.5">Time</span><span class="text-2xl font-bold font-mono text-cyan-300">${t}</span></div>
+                            <div><span class="text-[11px] text-indigo-300 block mb-0.5">Pace</span><span class="text-2xl font-bold font-mono leading-none">${p}</span></div>
+                            <div><span class="text-[11px] text-indigo-300 block mb-0.5">Time</span><span class="text-2xl font-bold font-mono text-cyan-300 leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "14",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white">
+                    <div class="p-6 text-white w-full box-border">
                         <div class="mb-6">
                             <span class="text-xs font-bold text-yellow-400 uppercase tracking-widest block mb-1">DISTANCE</span>
-                            <span style="font-family:'Oswald', sans-serif;" class="text-6xl font-bold tracking-tight text-white italic">${d} <span class="text-2xl not-italic text-zinc-400">KM</span></span>
+                            <div class="flex items-end gap-2"><span style="font-family:'Oswald', sans-serif;" class="text-6xl font-bold tracking-tight text-white italic leading-none">${d}</span><span class="text-2xl font-normal text-zinc-400 mb-1">KM</span></div>
                         </div>
                         <div class="flex gap-8">
-                            <div><span class="text-[11px] font-bold text-zinc-400 uppercase block mb-0.5">AVG PACE</span><span class="text-2xl font-bold text-yellow-400 font-mono">${p}</span></div>
-                            <div><span class="text-[11px] font-bold text-zinc-400 uppercase block mb-0.5">TIME</span><span class="text-2xl font-bold text-white font-mono">${t}</span></div>
+                            <div><span class="text-[11px] font-bold text-zinc-400 uppercase block mb-0.5">AVG PACE</span><span class="text-2xl font-bold text-yellow-400 font-mono leading-none">${p}</span></div>
+                            <div><span class="text-[11px] font-bold text-zinc-400 uppercase block mb-0.5">TIME</span><span class="text-2xl font-bold text-white font-mono leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "15",
                 render: (d, p, t) => `
-                    <div class="p-6 text-slate-100">
+                    <div class="p-6 text-slate-100 w-full box-border">
                         <div class="flex justify-between items-center">
-                            <div><span class="text-[11px] text-slate-400 uppercase block font-semibold">Distance</span><span class="text-5xl font-extrabold tracking-tight">${d} <span class="text-xl font-normal text-slate-400">km</span></span></div>
+                            <div><span class="text-[11px] text-slate-400 uppercase block font-semibold mb-1">Distance</span><div class="flex items-end gap-1"><span class="text-5xl font-extrabold tracking-tight leading-none">${d}</span><span class="text-xl font-normal text-slate-400 mb-1">km</span></div></div>
                             <div class="text-right">
-                                <div class="mb-3"><span class="text-[10px] text-slate-400 uppercase block">Pace</span><span class="text-xl font-bold text-sky-300 font-mono">${p}</span></div>
-                                <div><span class="text-[10px] text-slate-400 uppercase block">Duration</span><span class="text-xl font-bold text-white font-mono">${t}</span></div>
+                                <div class="mb-3"><span class="text-[10px] text-slate-400 uppercase block">Pace</span><span class="text-xl font-bold text-sky-300 font-mono leading-none">${p}</span></div>
+                                <div><span class="text-[10px] text-slate-400 uppercase block">Duration</span><span class="text-xl font-bold text-white font-mono leading-none">${t}</span></div>
                             </div>
                         </div>
                     </div>`
@@ -350,53 +352,53 @@
             {
                 name: "16",
                 render: (d, p, t) => `
-                    <div class="p-6 text-center text-white">
+                    <div class="p-6 text-center text-white w-full box-border">
                         <div class="mb-6">
-                            <span class="text-6xl font-black tracking-tighter font-sans">${d}</span>
-                            <span class="text-sm block uppercase tracking-widest text-slate-400 font-bold mt-1">KM</span>
+                            <span class="text-6xl font-black tracking-tighter font-sans leading-none">${d}</span>
+                            <span class="text-sm block uppercase tracking-widest text-slate-400 font-bold mt-2">KM</span>
                         </div>
                         <div class="flex justify-center gap-8">
-                            <div><span class="text-[10px] text-slate-400 block uppercase font-bold mb-0.5">Pace</span><span class="text-xl font-bold text-emerald-400 font-mono">${p}</span></div>
-                            <div><span class="text-[10px] text-slate-400 block uppercase font-bold mb-0.5">Time</span><span class="text-xl font-bold text-white font-mono">${t}</span></div>
+                            <div><span class="text-[10px] text-slate-400 block uppercase font-bold mb-0.5">Pace</span><span class="text-xl font-bold text-emerald-400 font-mono leading-none">${p}</span></div>
+                            <div><span class="text-[10px] text-slate-400 block uppercase font-bold mb-0.5">Time</span><span class="text-xl font-bold text-white font-mono leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "17",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white text-center">
+                    <div class="p-6 text-white text-center w-full box-border">
                         <div class="mb-6">
-                            <span class="text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-violet-400">${d}</span>
+                            <span class="text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-violet-400 leading-none">${d}</span>
                         </div>
                         <div class="flex justify-center gap-8 font-mono text-sm">
-                            <div class="text-left"><span class="text-[10px] text-slate-400 block">PACE</span><span class="text-fuchsia-400 font-bold text-xl">${p}</span></div>
-                            <div class="text-right"><span class="text-[10px] text-slate-400 block">TIME</span><span class="text-violet-400 font-bold text-xl">${t}</span></div>
+                            <div class="text-left"><span class="text-[10px] text-slate-400 block">PACE</span><span class="text-fuchsia-400 font-bold text-xl leading-none">${p}</span></div>
+                            <div class="text-right"><span class="text-[10px] text-slate-400 block">TIME</span><span class="text-violet-400 font-bold text-xl leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "18",
                 render: (d, p, t) => `
-                    <div class="p-6 text-stone-200">
-                        <div class="flex items-baseline gap-2 mb-6">
-                            <span class="text-6xl font-bold text-stone-100 font-serif">${d}</span>
-                            <span class="text-lg font-sans font-normal text-stone-400">KM</span>
+                    <div class="p-6 text-stone-200 w-full box-border">
+                        <div class="flex items-end gap-2 mb-6">
+                            <span class="text-6xl font-bold text-stone-100 font-serif leading-none">${d}</span>
+                            <span class="text-lg font-sans font-normal text-stone-400 mb-1">KM</span>
                         </div>
                         <div class="flex gap-8">
-                            <div><span class="text-[10px] uppercase text-stone-400 block mb-0.5">Pace</span><span class="text-xl font-bold text-amber-400">${p}</span></div>
-                            <div><span class="text-[10px] uppercase text-stone-400 block mb-0.5">Time</span><span class="text-xl font-bold text-stone-200">${t}</span></div>
+                            <div><span class="text-[10px] uppercase text-stone-400 block mb-0.5">Pace</span><span class="text-xl font-bold text-amber-400 leading-none">${p}</span></div>
+                            <div><span class="text-[10px] uppercase text-stone-400 block mb-0.5">Time</span><span class="text-xl font-bold text-stone-200 leading-none">${t}</span></div>
                         </div>
                     </div>`
             },
             {
                 name: "19",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white">
+                    <div class="p-6 text-white w-full box-border">
                         <div class="space-y-6">
-                            <div><span style="font-family:'Oswald', sans-serif;" class="text-6xl font-bold text-white tracking-wide block italic">${d} KM</span></div>
+                            <div><span style="font-family:'Oswald', sans-serif;" class="text-6xl font-bold text-white tracking-wide block italic leading-none">${d} KM</span></div>
                             <div class="flex gap-8">
-                                <div><span class="text-[10px] text-slate-400 uppercase block mb-0.5">Pace</span><span class="text-xl font-bold font-mono text-cyan-300">${p}</span></div>
-                                <div><span class="text-[10px] text-slate-400 uppercase block mb-0.5">Time</span><span class="text-xl font-bold font-mono text-white">${t}</span></div>
+                                <div><span class="text-[10px] text-slate-400 uppercase block mb-0.5">Pace</span><span class="text-xl font-bold font-mono text-cyan-300 leading-none">${p}</span></div>
+                                <div><span class="text-[10px] text-slate-400 uppercase block mb-0.5">Time</span><span class="text-xl font-bold font-mono text-white leading-none">${t}</span></div>
                             </div>
                         </div>
                     </div>`
@@ -404,11 +406,11 @@
             {
                 name: "20",
                 render: (d, p, t) => `
-                    <div class="p-6 text-white text-center">
-                        <div class="text-7xl font-black mb-6 font-mono tracking-tighter">${d} <span class="text-xl text-zinc-500 font-sans">KM</span></div>
+                    <div class="p-6 text-white text-center w-full box-border">
+                        <div class="flex justify-center items-end mb-6 gap-2"><span class="text-7xl font-black font-mono tracking-tighter leading-none">${d}</span><span class="text-xl text-zinc-500 font-sans mb-1">KM</span></div>
                         <div class="flex justify-center gap-8 text-sm font-mono border-t border-zinc-700/50 pt-4">
-                            <div class="text-left"><span class="text-[10px] text-zinc-400 block uppercase mb-0.5">PACE</span><span class="text-white font-bold text-2xl">${p}</span></div>
-                            <div class="text-right"><span class="text-[10px] text-zinc-400 block uppercase mb-0.5">TIME</span><span class="text-white font-bold text-2xl">${t}</span></div>
+                            <div class="text-left"><span class="text-[10px] text-zinc-400 block uppercase mb-0.5">PACE</span><span class="text-white font-bold text-2xl leading-none">${p}</span></div>
+                            <div class="text-right"><span class="text-[10px] text-zinc-400 block uppercase mb-0.5">TIME</span><span class="text-white font-bold text-2xl leading-none">${t}</span></div>
                         </div>
                     </div>`
             }
@@ -446,15 +448,15 @@
             captureCard.innerHTML = templates[currentTemplateId].render(formattedDist, paceStr, displayTimeStr);
         }
 
-        // FUNGSI COPY GAMBAR TRANSPARAN
         function copyImage() {
             const btnSpan = document.querySelector('#btn-copy span');
             const originalText = btnSpan.innerText;
             btnSpan.innerText = 'Menyalin...';
 
+            // Skala diperbesar menjadi 4 untuk akurasi rendering font yang lebih solid
             html2canvas(captureCard.firstElementChild, {
                 backgroundColor: null,
-                scale: 3,
+                scale: 4, 
                 logging: false,
                 useCORS: true
             }).then(canvas => {
@@ -486,7 +488,7 @@
         function downloadTransparentPNG() {
             html2canvas(captureCard.firstElementChild, {
                 backgroundColor: null,
-                scale: 3,
+                scale: 4,
                 logging: false,
                 useCORS: true
             }).then(canvas => {
